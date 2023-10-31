@@ -16,11 +16,13 @@ import {
   IonModal,
   IonPage,
   IonTitle,
+  IonToggle,
   IonToolbar,
+  ToggleCustomEvent,
   useIonLoading,
   useIonViewWillEnter,
 } from "@ionic/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import { DetailsResult, useApi } from "../hooks/useApi";
 import "./Home.css";
@@ -40,6 +42,7 @@ const Details: React.FC<DetailsPageProps> = ({ match }) => {
   const { getDetails } = useApi();
   const [information, setInformation] = useState<DetailsResult | null>(null);
   const [loading, dismiss] = useIonLoading();
+  const [themeToggle, setThemeToggle] = useState(false);
 
   const fetchData = async () => {
     await loading();
@@ -54,6 +57,27 @@ const Details: React.FC<DetailsPageProps> = ({ match }) => {
     fetchData();
   });
 
+  const toggleDarkTheme = (shouldAdd: boolean) => {
+    document.body.classList.toggle("dark", shouldAdd);
+  };
+
+  const toggleChange = (ev: ToggleCustomEvent) => {
+    toggleDarkTheme(ev.detail.checked);
+  };
+
+  const initializeDarkTheme = (isDark: boolean) => {
+    setThemeToggle(isDark);
+    toggleDarkTheme(isDark);
+  };
+
+  useEffect(() => {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+    initializeDarkTheme(prefersDark.matches);
+    prefersDark.addEventListener("change", (mediaQuery) =>
+      initializeDarkTheme(mediaQuery.matches)
+    );
+  }, []);
+
   return (
     <IonPage>
       <IonHeader>
@@ -62,6 +86,14 @@ const Details: React.FC<DetailsPageProps> = ({ match }) => {
             <IonBackButton defaultHref="/movies"></IonBackButton>
           </IonButtons>
           <IonTitle>{information?.Genre}</IonTitle>
+          <IonToggle
+            aria-label="Dark toggle"
+            color={"dark"}
+            slot="end"
+            className="ion-padding-end"
+            checked={themeToggle}
+            onIonChange={toggleChange}
+          ></IonToggle>
         </IonToolbar>
       </IonHeader>
 

@@ -14,14 +14,19 @@ import {
   IonToolbar,
   useIonLoading,
   IonToast,
+  IonToggle,
+  ToggleCustomEvent,
 } from "@ionic/react";
 import React, { useEffect, useState } from "react";
 import { SearchResult, SearchType, useApi } from "../hooks/useApi";
 import {
   gameControllerOutline,
+  moonOutline,
+  toggle,
   tvOutline,
   videocamOutline,
 } from "ionicons/icons";
+import "./Home.css";
 
 const Home: React.FC = () => {
   const { searchData } = useApi();
@@ -30,6 +35,7 @@ const Home: React.FC = () => {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [error, setError] = useState<string>("");
   const [loading, dismiss] = useIonLoading();
+  const [themeToggle, setThemeToggle] = useState(false);
 
   const loadData = async () => {
     await loading();
@@ -53,11 +59,40 @@ const Home: React.FC = () => {
     loadData();
   }, [searchTerm, type]);
 
+  const toggleDarkTheme = (shouldAdd: boolean) => {
+    document.body.classList.toggle("dark", shouldAdd);
+  };
+
+  const toggleChange = (ev: ToggleCustomEvent) => {
+    toggleDarkTheme(ev.detail.checked);
+  };
+
+  const initializeDarkTheme = (isDark: boolean) => {
+    setThemeToggle(isDark);
+    toggleDarkTheme(isDark);
+  };
+
+  useEffect(() => {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+    initializeDarkTheme(prefersDark.matches);
+    prefersDark.addEventListener("change", (mediaQuery) =>
+      initializeDarkTheme(mediaQuery.matches)
+    );
+  }, []);
+
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar color={"primary"}>
           <IonTitle>FilmFlow</IonTitle>
+          <IonToggle
+            aria-label="Dark toggle"
+            color={"dark"}
+            slot="end"
+            className="ion-padding-end"
+            checked={themeToggle}
+            onIonChange={toggleChange}
+          ></IonToggle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
