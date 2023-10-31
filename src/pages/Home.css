@@ -25,3 +25,17 @@
 ion-item {
   --transition: none;
 }
+
+.padding {
+  padding-left: 7px;
+  font-size: 17px;
+}
+
+.icon-style {
+  font-size: 16px;
+}
+
+.margin {
+  margin-left: 10px;
+  margin-right: 10px;
+}
